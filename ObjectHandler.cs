@@ -23,12 +23,32 @@ public class ObjectHandler : MonoBehaviour {
 
 	public void SpawnObject(int x, int y, int z){
 
-		//Instantiate (selectionObject, (new Vector3 (x, y, z), Quaternion.Euler(Vector3.zero)));
+
+
 
 		Vector3 pos = new Vector3(x, y, z);
+		Vector3 posUp = new Vector3 (x, y + 1, z);
+
 		if (!occupiedSpaces.ContainsKey(pos)){
 			
-			occupiedSpaces.Add (pos, true);
+			//occupiedSpaces.Add (pos, true);
+			//occupiedSpaces.Add (posUp, true); //added to counter stacking objects
+			int sizeX = selectionObject.GetComponent<ObjectProperties> ().sizeX;
+			int sizeZ = selectionObject.GetComponent<ObjectProperties> ().sizeZ;
+
+			//logic for bigger than 1x1 object occupying space
+			for (int zn = 0; zn < sizeZ; zn++){
+				for (int xn = 0; xn < sizeX; xn++){
+
+					pos = new Vector3 (x+xn, y, z+zn);
+					posUp = new Vector3 (x + xn, y+1, z + zn); //added +1 to heigh to counter stacking objects
+
+
+					occupiedSpaces.Add (pos, true);
+					occupiedSpaces.Add (posUp, true);
+				}
+			}
+
 			Instantiate (selectionObject, pos, Quaternion.identity);
 
 		}

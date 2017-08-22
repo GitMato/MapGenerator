@@ -6,6 +6,8 @@ public class ObjectProperties : MonoBehaviour {
 
 
 	public bool Destructable;
+	public int sizeX;
+	public int sizeZ;
 	public int costWood;
 	public int costMetal;
 	public int costMatsku1;

@@ -11,10 +11,10 @@ public class ChunkGenerator : MonoBehaviour {
 
 
 	// ei jaollinen kahdella
+	//toimii 101:lla
 	public static int mapSize = 255;
 	//public int mapGridSize = 2;
-	//public string seed;
-	public bool useRandomSeed;
+
 
 	List<Vector3> vertices = new List<Vector3>();
 	List<int> triangles = new List<int> ();
@@ -23,12 +23,13 @@ public class ChunkGenerator : MonoBehaviour {
 	MeshFilter filter;
 	MeshCollider coll;
 
-	int coordXgrid = 0;
-	int coordZgrid = 0;
+	//int coordXgrid = 0;
+	//int coordZgrid = 0;
 
 	ChunkID chunkID;
 
 
+	//Noise controllers
 	[Range(0,10)]
 	public float heightScale1 = 2f; // 5
 	[Range(0,1)]
@@ -42,7 +43,7 @@ public class ChunkGenerator : MonoBehaviour {
 	[Range(0,1)]
 	public float frequency3 = 0.1f; // 0.001 = 0.1/100
 
-	// HEIGHTSCALE MÄÄRÄYTYMINEN NOISENMUKAAN!!!!!!!!
+	//
 
 
 
@@ -50,6 +51,11 @@ public class ChunkGenerator : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+
+
+
+		SeedToScale ();
+
 		float[][] heightArray1 = new float[mapSize][];
 		GenerateHeightArray (heightArray1);
 
@@ -63,10 +69,11 @@ public class ChunkGenerator : MonoBehaviour {
 		filter = gameObject.GetComponent<MeshFilter> ();
 		coll = gameObject.GetComponent<MeshCollider> ();
 
-		GetNoiseCoordMultiplier ();
-		//UpdateChunkID ();
+
+		//TestFunction ();
+		UpdateChunkID ();
 		SetUItext ();
-		GetWorldPos ();
+		//GetWorldPos ();
 
 
 
@@ -106,26 +113,19 @@ public class ChunkGenerator : MonoBehaviour {
 		for (int z = 0; z < mapSize; z++){
 			for (int x = 0; x < mapSize; x++){
 
-//				//Height values - random Noise
-//				randomHeight = Random.Range (0, 51);
-//				if (randomHeight <= 30){
-//					y = 0.0f;
-//				} else if(randomHeight > 30 && randomHeight <= 45) {
-//					y = 0.33f;
-//				} else if (randomHeight > 45 && randomHeight <= 48){
-//					y = 0.66f;
-//				} else if (randomHeight > 48 && randomHeight <= 50){
-//					y = 1.0f;
-//				}
-//
 
+				// heightArray1 pienetkukkulat
+				// heightArray2 ihan pienet epätasaisuudet
+				// heightArray3 suuret muodot
 
 				y = heightArray1 [x] [z] * heightScale1;
-				//if (heightArray2 [x] [y] > 0f) {
-				y += heightArray2 [x] [z] * heightScale2;
-				//}
-				y += heightArray3 [x] [z] * heightScale3;
 
+
+				y += heightArray3 [x] [z] * heightScale3;
+//				if (y < 0.5f){
+//					y = 0.5f;
+//				}
+				y += heightArray2 [x] [z] * heightScale2;
 
 				vertices.Add(new Vector3(x, y, z));
 
@@ -211,17 +211,23 @@ public class ChunkGenerator : MonoBehaviour {
 
 		int gridSize = 0;
 
+		//int countX = 0;
+		//int countZ = 0;
+
 		for (int z = 0; z < mapSize; z++ ){
 			
-			for (int x = 0; x < mapSize; x++){
 
+			for (int x = 0; x < mapSize; x++){
+				
 				Vector3 position = GetComponent<Transform>().position;
 
 //				float xn = position.x * x;
 //				float zn = position.z * z;
 
-				float xn = (x + (this.chunkID.chunkX * mapSize));
-				float zn = (z + (this.chunkID.chunkZ * mapSize));
+				float xn = (x + (this.chunkID.chunkX * mapSize) - chunkID.chunkX);
+				float zn = (z + (this.chunkID.chunkZ * mapSize) - chunkID.chunkZ);
+
+
 
 //				float xn = (x + (coordXgrid * mapSize));
 //				float zn = (z + (coordZgrid * mapSize));
@@ -233,7 +239,7 @@ public class ChunkGenerator : MonoBehaviour {
 
 				//heightArray [x] [z] = Mathf.PerlinNoise (xn * frequency, zn * frequency);
 
-				heightArray [x] [z] = Noise.Generate (xn * frequency, zn * frequency);
+				heightArray [x] [z] = Noise.Generate (xn * frequency , zn * frequency);
 
 
 			}
@@ -242,18 +248,7 @@ public class ChunkGenerator : MonoBehaviour {
 
 		return heightArray;
 	}
-
-
-	void UpdateMap(){
-
-
-
-		//Vector3[] meshVertices = mesh.vertices;
-
-
-
-
-	}
+		
 
 	int GetGridSize(){
 
@@ -270,58 +265,33 @@ public class ChunkGenerator : MonoBehaviour {
 		
 	}
 
-	void GetWorldPos(){
-		Vector3 position = GetComponent<Transform> ().position;
 
-
-		//jos gridsize = 2 niin kaukaisin vertex on x= -50, z = -50 -jos chunkSize = 50
-
-		//jos gridsize = 3 niin kaukaisin vertex on x= -75, z = -75 -jos chunkSize = 50
-
-		//  pitää plussata  gridSize*chunkSize/2
-
-		//  
-		// 					(	2	*50/2) = 50
-		//					(	3	*50/2) = 75
-
-		coordXgrid = Mathf.FloorToInt(position.x) / mapSize;
-		if(coordXgrid < 0){
-			coordXgrid *= -1;
-		}
-		coordZgrid = Mathf.FloorToInt(position.z) / mapSize;
-		if(coordZgrid < 0){
-			coordZgrid *= -1;
-		}
-
-
-
-
-	}
-
-	void ChangeVertexCoordsToPositive(){
-		
-
-
-	}
-
-	void UpdateChunkID(){
-
-		Vector3 position = GetComponent<Transform> ().position;
-		chunkID.chunkPos = position;
-//		chunkID.posX = Mathf.FloorToInt (position.x);
-//		chunkID.posY = Mathf.FloorToInt(position.y);
-//		chunkID.id = WholeMapGenerator.id;
-
-		if (position.x < 0){
-			position.x *= -1;
-		}
-
-		//chunkID.chunkX = position.x * 2; --------------------------wat
-
-
-
-	}
-
+	//useless
+//	void GetWorldPos(){
+//		Vector3 position = GetComponent<Transform> ().position;
+//
+//
+//		//jos gridsize = 2 niin kaukaisin vertex on x= -50, z = -50 -jos chunkSize = 50
+//
+//		//jos gridsize = 3 niin kaukaisin vertex on x= -75, z = -75 -jos chunkSize = 50
+//
+//		//  pitää plussata  gridSize*chunkSize/2
+//
+//		//  
+//		// 					(	2	*50/2) = 50
+//		//					(	3	*50/2) = 75
+//
+//		coordXgrid = Mathf.FloorToInt(position.x) / mapSize;
+//		if(coordXgrid < 0){
+//			coordXgrid *= -1;
+//		}
+//		coordZgrid = Mathf.FloorToInt(position.z) / mapSize;
+//		if(coordZgrid < 0){
+//			coordZgrid *= -1;
+//		}
+//
+//	}
+//
 
 	public struct ChunkID{
 
@@ -354,34 +324,95 @@ public class ChunkGenerator : MonoBehaviour {
 
 	}
 
-	void GetNoiseCoordMultiplier(){
+	void UpdateChunkID(){
 
 		int gridSize = WholeMapGenerator.gridSizeInfo;
 
-		int multiplierX = (int)(this.transform.position.x - (mapSize / 2) - 1) / (mapSize-1);
-		int multiplierZ = (int)(this.transform.position.z - (mapSize / 2) - 1) / (mapSize-1);
+		//int multiplierX = (int)(this.transform.position.x - (mapSize / 2) - 1) / (mapSize-1);
 
-		multiplierX += 1;
-		multiplierZ += 1;
+		//int multiplierZ = (int)(this.transform.position.z - (mapSize / 2) - 1) / (mapSize-1);
 
-		chunkID.chunkX = multiplierX;
-		chunkID.chunkZ = multiplierZ;
+		float posX = this.transform.position.x;
+		float posZ = this.transform.position.z;
 
-		Debug.Log (multiplierX +" "+multiplierZ);
 
-//		for (int z = mapSize/2; z < gridSize*mapSize; z+=mapSize){
-//			if (this.transform.position.z == z){
-//				chunkID.chunkZ = z;
-//			}
-//			for (int x = mapSize/2; x < gridSize*mapSize; z +=mapSize){
-//				if (this.transform.position.x == x){
-//					chunkID.chunkX = x;
-//				}
-//
-//			}
-//			
+		int idX = Mathf.RoundToInt((posX-(mapSize/2))/(mapSize-1));
+		//idX = Mathf.RoundToInt(idX);
+		int idZ = Mathf.RoundToInt((posZ-(mapSize/2))/(mapSize-1));
+		//idZ = Mathf.RoundToInt(idZ);
+
+		//int multiplierX = (int)(posX-(mapSize/2))/(mapSize-1); //nnäissä vika
+		//int multiplierZ = (int)(posZ-(mapSize/2))/(mapSize-1);
+
+		// gridSize 8 eli multiplieriin lisätään 4
+		//multiplierX += Mathf.FloorToInt(gridSize/2);
+		//multiplierZ += Mathf.FloorToInt(gridSize/2);
+
+		idX += Mathf.FloorToInt(gridSize/2);
+		idZ += Mathf.FloorToInt(gridSize/2);
+
+		if ((gridSize) % 2 != 0){
+			
+			//multiplierX += 1;
+			//multiplierZ += 1;
+
+			idX += 1;
+			idZ += 1;
+
+		} 
+
+		//debuggausta
+//		if (multiplierX == 4 || multiplierZ == 0){
+//			Debug.Log ("id "+ multiplierX +","+ multiplierZ +" pos ="+this.transform.position.x);
+//			Debug.Log ("XZ "+ idX +","+ idZ +" pos ="+this.transform.position.x);
 //		}
 
+
+		chunkID.chunkX = idX;
+		chunkID.chunkZ = idZ;
+
+		//Debug.Log (multiplierX +" "+multiplierZ);
+
+
+
 	}
+
+	void SeedToScale(){
+
+		int seed = WholeMapGenerator.seedHash;
+
+//		heightScale1 = 0 * seed;
+//		frequency1 = 0 * seed;
+//		heightScale2 = 0 * seed;
+//		frequency2 = 0 * seed;
+//		heightScale3 = 0 * seed;
+//		frequency3 = 0 * seed;
+
+//		int offset = Mathf.RoundToInt(seed*0.01);
+
+
+
+
+	}
+
+	void TestFunction(){
+
+		float test1 = 25.5f;
+		float test2 = 25.6f;
+		float test3 = 25.4f;
+		float test4 = -1 / 50;
+		float test5 = -0.555f;
+
+		int testi1 = (int)test1;
+		int testi2 = (int)test2;
+		int testi3 = (int)test3;
+		int testi4 = (int)test4;
+		int testi5 = (int)test5;
+
+		//Debug.Log ("25.5 = "+testi1+", 25.6 = "+testi2+", 25.4 = "+testi3+", -1/50 = "+test4+", -0.555 = "+testi5);
+
+	}
+
+
 
 }

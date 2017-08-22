@@ -8,15 +8,18 @@ public class PlayerFirstPerson : MonoBehaviour {
 	Rigidbody rigidbody;
 	public Vector3 velocity;
 	Vector3 rotation;
+	Camera firstPersonCamera;
 	// Use this for initialization
 	void Start () {
-		rigidbody = GetComponent<Rigidbody> ();
 		
+		rigidbody = GetComponent<Rigidbody> ();
+		firstPersonCamera = GetComponentInChildren<Camera> ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		velocity = new Vector3(Input.GetAxisRaw ("Horizontal"),0,Input.GetAxisRaw("Vertical"));
+
 		if (Input.GetButton("Fire3")){
 			velocity = velocity * 5;
 		}
@@ -38,8 +41,12 @@ public class PlayerFirstPerson : MonoBehaviour {
 
 	void FixedUpdate() {
 		//rigidbody.AddForce (velocity * Time.fixedDeltaTime);
+		//rigidbody.MovePosition (rigidbody.position + velocity * Time.fixedDeltaTime);
+
 		rigidbody.MovePosition (rigidbody.position + velocity * Time.fixedDeltaTime);
+
 		rigidbody.MoveRotation (rigidbody.rotation * Quaternion.Euler(rotation) * Quaternion.Euler(0, Time.fixedDeltaTime, 0));
+
 
 	}
 }

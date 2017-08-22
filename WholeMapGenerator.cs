@@ -6,6 +6,11 @@ public class WholeMapGenerator : MonoBehaviour{
 
 	public int chunkGridSize = 2;
 	public GameObject chunkPrefab;
+
+	public string seed;
+	public bool useRandomSeed;
+	public static int seedHash;
+
 	// Use this for initialization
 	GameObject newChunk;
 
@@ -15,6 +20,14 @@ public class WholeMapGenerator : MonoBehaviour{
 	List<GameObject> mapChunks = new List<GameObject>();
 
 	void Start () {
+
+		if (useRandomSeed){
+			//seed = Time.time.ToString ();
+			seed = (Random.Range (0,999999)).ToString();
+		}
+
+		seedHash = seed.GetHashCode ();
+		Debug.Log (seed+": " + seed);
 
 		GenerateGrid ();
 		ChangeMapPos ();
@@ -43,7 +56,7 @@ public class WholeMapGenerator : MonoBehaviour{
 
 			for (int x = 0; x < (chunkGridSize * chunkSize) -1; x+=chunkSize){
 				
-				Vector3 position = new Vector3 (x, 0, z);
+				Vector3 position = new Vector3 (x - (x/chunkSize), 0, z- (z/chunkSize));
 
 				mapChunks.Add(Instantiate (chunkPrefab, position, Quaternion.Euler (Vector3.zero)));
 				//ChunkGenerator.ChunkID.id = id;
@@ -70,7 +83,11 @@ public class WholeMapGenerator : MonoBehaviour{
 			int zPos = Mathf.FloorToInt(mapChunks [i].transform.position.z);
 
 
-			mapChunks [i].transform.SetPositionAndRotation (new Vector3(xPos + xPosChange, yPos, zPos + zPosChange), Quaternion.Euler(Vector3.zero));
+			//mapChunks [i].transform.SetPositionAndRotation (new Vector3(xPos + xPosChange-(xPos/(ChunkGenerator.mapSize/2)+i), yPos, zPos + zPosChange - (zPos/(ChunkGenerator.mapSize/2)+i)), 
+			//												Quaternion.Euler(Vector3.zero));
+
+			mapChunks [i].transform.SetPositionAndRotation (new Vector3(xPos + xPosChange, yPos, zPos + zPosChange), 
+				Quaternion.Euler(Vector3.zero));
 
 
 

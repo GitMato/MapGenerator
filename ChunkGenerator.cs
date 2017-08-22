@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 using SimplexNoise;
 [RequireComponent(typeof(MeshFilter))]
@@ -16,12 +17,23 @@ public class ChunkGenerator : MonoBehaviour {
 	//public int mapGridSize = 2;
 
 
+	// korkeuden tunnistus apuja - dictionary nopeampi kuin lista
+
+	Dictionary<Vector2, Vector3> vertexID = new Dictionary<Vector2, Vector3>();
+	//Vector3 vertexPos;
+
 	List<Vector3> vertices = new List<Vector3>();
 	List<int> triangles = new List<int> ();
+
+
+	List<Square> squares = new List<Square>();
+	Dictionary<WorldPos, Square> squaresDict = new Dictionary<WorldPos, Square> ();
 	//float[][] heightArray = new float[mapSize][];
 
 	MeshFilter filter;
 	MeshCollider coll;
+
+
 
 	//int coordXgrid = 0;
 	//int coordZgrid = 0;
@@ -45,7 +57,25 @@ public class ChunkGenerator : MonoBehaviour {
 
 	//
 
+	public struct WorldPos{
+		public int x;
+		public int z;
+		//public int y;
 
+		public WorldPos(int x, int z){
+			this.x = x;
+			this.z = z;
+			//this.y = y;
+		}
+	}
+
+	public class Square{
+
+		public int coordX;
+		public int coordZ;
+		public float coordY;
+
+	}
 
 
 
@@ -80,6 +110,9 @@ public class ChunkGenerator : MonoBehaviour {
 		GenerateVertices (heightArray1, heightArray2, heightArray3);
 		TriangulateSquare ();
 		GenerateMesh ();
+
+
+		AddVecticesToDict ();
 
 		MapMeshGenerator meshGenerator = GetComponent<MapMeshGenerator> ();
 
@@ -296,8 +329,8 @@ public class ChunkGenerator : MonoBehaviour {
 	public struct ChunkID{
 
 		public Vector3 chunkPos;
-		public int posX;
-		public int posZ;
+		//public int posX;
+		//public int posZ;
 		public int id;
 
 		public int chunkX;
@@ -305,8 +338,8 @@ public class ChunkGenerator : MonoBehaviour {
 
 		public ChunkID(int x, int z, Vector3 pos, int identity, int idx, int idy){
 			chunkPos = pos;
-			posX = x;
-			posZ = z;
+			//posX = x;
+			//posZ = z;
 			id = identity;
 
 			chunkX = idx;
@@ -395,6 +428,60 @@ public class ChunkGenerator : MonoBehaviour {
 
 	}
 
+
+	//en oo varma toimiiko
+	void GenerateSquareGridIDs(){
+
+		int minXSquare = this.chunkID.chunkX * (mapSize - 1);
+		int maxXSquare = this.chunkID.chunkX * (mapSize - 1) + (mapSize -1);
+
+		int minZSquare = this.chunkID.chunkZ * (mapSize - 1);
+		int maxZSquare = this.chunkID.chunkZ * (mapSize - 1) + (mapSize -1);
+
+		for (int x = minXSquare; x < maxXSquare; x++){
+			for (int z = minZSquare; z < maxZSquare; z++){
+				
+				WorldPos pos = new WorldPos ();
+				Square squ = new Square ();
+
+				pos.x = x;
+				pos.z = z;
+
+				squ.coordX = pos.x;
+				squ.coordZ = pos.z;
+				squ.coordY = GetHighestPoint (x,z);
+
+				squaresDict.Add (pos, squ );
+
+			}
+
+		}
+			
+	}
+
+	//korkein piste neljän vertexin joukossa eli neliössä
+	//parametrina vasen ala vertexin sijainti
+	float GetHighestPoint(int x, int z){
+		
+		float highestPoint;
+
+		List<float> points = new List<float> ();
+		Vector2 key = new Vector2 (x, z);
+		Vector2 key1 = new Vector2 (x+1, z);
+		Vector2 key2 = new Vector2 (x, z+1);
+		Vector2 key3 = new Vector2 (x+1, z+1);
+
+		points.Add (vertexID [key].y);
+		points.Add (vertexID [key1].y);
+		points.Add (vertexID [key2].y);
+		points.Add (vertexID [key3].y);
+
+
+		highestPoint = Mathf.Max(Mathf.Max(Mathf.Max (points[0],points[1]),points[2]),points[3]);
+
+		return highestPoint;
+	}
+
 	void TestFunction(){
 
 		float test1 = 25.5f;
@@ -413,6 +500,22 @@ public class ChunkGenerator : MonoBehaviour {
 
 	}
 
+
+	//lisaa vertexit dictiin, joista on helppo hakea x,z koordinaateilla korkein korkeus
+	void AddVecticesToDict(){
+
+		for (int i = 0; i < vertices.Count;i++){
+			
+			float x = vertices [i].x;
+			float z = vertices [i].z;
+			float y = vertices [i].y;
+
+			vertexID.Add (new Vector2(x, z), new Vector3(x, y, z));
+		}
+
+
+
+	}
 
 
 }

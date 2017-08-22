@@ -19,6 +19,10 @@ public class WholeMapGenerator : MonoBehaviour{
 
 	List<GameObject> mapChunks = new List<GameObject>();
 
+
+
+
+
 	void Start () {
 
 		if (useRandomSeed){
@@ -94,6 +98,8 @@ public class WholeMapGenerator : MonoBehaviour{
 		}
 
 	}
+
+
 
 
 }

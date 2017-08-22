@@ -11,7 +11,8 @@ public class Player : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		
+
+
 		rigidbody = GetComponent<Rigidbody> ();
 		//rigidbody.MovePosition (new Vector3());
 		
@@ -21,10 +22,12 @@ public class Player : MonoBehaviour {
 	void Update () {
 		
 		velocity = new Vector3(Input.GetAxisRaw ("Horizontal"),0,Input.GetAxisRaw("Vertical"));
+
 	}
 
 	void FixedUpdate() {
 		//rigidbody.AddForce (velocity * Time.fixedDeltaTime);
 		rigidbody.MovePosition (rigidbody.position + velocity * Time.fixedDeltaTime);
+
 	}
 }

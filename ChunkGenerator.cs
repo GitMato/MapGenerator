@@ -429,7 +429,7 @@ public class ChunkGenerator : MonoBehaviour {
 	}
 
 
-	//en oo varma toimiiko
+	//en oo varma toimiiko, tartteeko tätä edes? Jos mouse RayCasthit:lla tekis mieluummin
 	void GenerateSquareGridIDs(){
 
 		int minXSquare = this.chunkID.chunkX * (mapSize - 1);
@@ -482,23 +482,23 @@ public class ChunkGenerator : MonoBehaviour {
 		return highestPoint;
 	}
 
-	void TestFunction(){
-
-		float test1 = 25.5f;
-		float test2 = 25.6f;
-		float test3 = 25.4f;
-		float test4 = -1 / 50;
-		float test5 = -0.555f;
-
-		int testi1 = (int)test1;
-		int testi2 = (int)test2;
-		int testi3 = (int)test3;
-		int testi4 = (int)test4;
-		int testi5 = (int)test5;
-
-		//Debug.Log ("25.5 = "+testi1+", 25.6 = "+testi2+", 25.4 = "+testi3+", -1/50 = "+test4+", -0.555 = "+testi5);
-
-	}
+//	void TestFunction(){
+//
+//		float test1 = 25.5f;
+//		float test2 = 25.6f;
+//		float test3 = 25.4f;
+//		float test4 = -1 / 50;
+//		float test5 = -0.555f;
+//
+//		int testi1 = (int)test1;
+//		int testi2 = (int)test2;
+//		int testi3 = (int)test3;
+//		int testi4 = (int)test4;
+//		int testi5 = (int)test5;
+//
+//		//Debug.Log ("25.5 = "+testi1+", 25.6 = "+testi2+", 25.4 = "+testi3+", -1/50 = "+test4+", -0.555 = "+testi5);
+//
+//	}
 
 
 	//lisaa vertexit dictiin, joista on helppo hakea x,z koordinaateilla korkein korkeus

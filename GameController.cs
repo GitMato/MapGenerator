@@ -6,8 +6,8 @@ using UnityEngine.UI;
 public class GameController : MonoBehaviour {
 
 	//public GameObject nodeWall;
-	int minSpawn;
-	int maxSpawn;
+	//int minSpawn;
+	//int maxSpawn;
 	int floorMask;
 	float camRayLength = 100f;
 
@@ -22,17 +22,33 @@ public class GameController : MonoBehaviour {
 
 	GameObject mousePointGameObject;
 
-	//public float TimeBetweenSpawns;
-	//private float timer;
+	public float TimeBetweenSpawns;
+	private float timer;
 
 	// Use this for initialization
 	void Start () {
-		floorMask = -1;
+		//floorMask = -1;
+		floorMask = LayerMask.GetMask ("map");
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		
+		timer += Time.deltaTime;
+
+		if(Input.GetButton ("Fire1") && timer >= TimeBetweenSpawns){
+
+			GetComponent<ObjectHandler> ().SpawnObject (mousePosx, mousePosy, mousePosz);
+			//SpawnCubesOnClick ();
+			//GetComponent<NodeHandler>().SpawnCubesOnClick(nodeWall, mousePosx, mousePosy, mousePosz, mousePointGameObject, mousePos);
+			timer = 0;
+		}
+
+		if (Input.GetButton ("Fire2") && timer >= TimeBetweenSpawns) {
+
+			GetComponent<ObjectHandler> ().RemoveObject (mousePointGameObject);
+			//GetComponent<NodeHandler>().RemoveNode(mousePointGameObject);
+			timer = 0;
+		}
 	}
 
 	void FixedUpdate () {

@@ -15,15 +15,32 @@ public class WholeMapGenerator : MonoBehaviour{
 	GameObject newChunk;
 
 	public static int gridSizeInfo;
-
+	public static float[] noiseInput;
 
 	List<GameObject> mapChunks = new List<GameObject>();
 
+	//Noise controllers
+	[Range(0,10)]
+	public float heightScale1 = 2f; // 5
+	[Range(0,1)]
+	public float frequency1 = 0.2f; // 0.02 = 0.2f/10
+	[Range(0,10)]
+	public float heightScale2 = 3f; // 0.2 ROUGHNESS
+	[Range(0,1)]
+	public float frequency2 = 0.84f; // 0.42 = 0.84/2 ROUGHNESS
+	[Range(0,15)]
+	public float heightScale3 = 3f; // 3
+	[Range(0,1)]
+	public float frequency3 = 0.1f; // 0.001 = 0.1/100
 
 
+	private float timer;
 
 
 	void Start () {
+
+		noiseInput = new float[6];
+		GenerateArrayFromInput ();
 
 		if (useRandomSeed){
 			//seed = Time.time.ToString ();
@@ -39,10 +56,30 @@ public class WholeMapGenerator : MonoBehaviour{
 	
 	// Update is called once per frame
 	void Update () {
-		
+
+		timer += Time.deltaTime;
+
+		if (timer > 1) {
+			GenerateArrayFromInput ();
+		}
+
+	}
+
+	void GenerateArrayFromInput(){
+		noiseInput [0] = heightScale1;
+		noiseInput [1] = frequency1;
+
+		noiseInput [2] = heightScale2;
+		noiseInput [3] = frequency2;
+
+		noiseInput [4] = heightScale3;
+		noiseInput [5] = frequency3;
+
+
 	}
 
 	void GenerateGrid(){
+		
 		gridSizeInfo = chunkGridSize;
 		//id = 0;
 		//mapChunks = new GameObject[chunkGridSize*chunkGridSize]();

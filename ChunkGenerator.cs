@@ -30,6 +30,7 @@ public class ChunkGenerator : MonoBehaviour {
 	Dictionary<WorldPos, Square> squaresDict = new Dictionary<WorldPos, Square> ();
 	//float[][] heightArray = new float[mapSize][];
 
+	Mesh mesh;
 	MeshFilter filter;
 	MeshCollider coll;
 
@@ -55,7 +56,20 @@ public class ChunkGenerator : MonoBehaviour {
 	[Range(0,1)]
 	public float frequency3 = 0.1f; // 0.001 = 0.1/100
 
+//	float heightScale1;
+//	float frequency1;
+//	float heightScale2;
+//	float frequency2;
+//	float heightScale3;
+//	float frequency3;
+
+
+	private float[][] heightArray1;
+	private float[][] heightArray2;
+	private float[][] heightArray3;
 	//
+
+	private float timer;
 
 	public struct WorldPos{
 		public int x;
@@ -82,17 +96,22 @@ public class ChunkGenerator : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
+		//GetNoiseValues ();
 
+		mesh = new Mesh ();
 
 		SeedToScale ();
 
-		float[][] heightArray1 = new float[mapSize][];
+		//float[][] heightArray1 = new float[mapSize][];
+		heightArray1 = new float[mapSize][];
 		GenerateHeightArray (heightArray1);
 
-		float[][] heightArray2 = new float[mapSize][];
+		//float[][] heightArray2 = new float[mapSize][];
+		heightArray2 = new float[mapSize][];
 		GenerateHeightArray (heightArray2);
 
-		float[][] heightArray3 = new float[mapSize][];
+		//float[][] heightArray3 = new float[mapSize][];
+		heightArray3 = new float[mapSize][];
 		GenerateHeightArray (heightArray3);
 
 
@@ -107,7 +126,7 @@ public class ChunkGenerator : MonoBehaviour {
 
 
 
-		GenerateVertices (heightArray1, heightArray2, heightArray3);
+		GenerateVertices (heightArray1, heightArray2, heightArray3, false);
 		TriangulateSquare ();
 		GenerateMesh ();
 
@@ -116,15 +135,55 @@ public class ChunkGenerator : MonoBehaviour {
 
 		MapMeshGenerator meshGenerator = GetComponent<MapMeshGenerator> ();
 
+		//Debug.Log (mesh.vertices [0]);
 
 	}
+
 	
 	// Update is called once per frame
 	void Update () {
 		
+		timer += Time.deltaTime;
+
+		//update y values if timer is greater than 1 AND a change has happened in frequencies or heightscales
+
+		//if (Input.GetKeyDown(KeyCode.R) && timer > 10){
+		if (timer > .5f){
+			
+			//GetNoiseValues ();
+			GenerateVertices (heightArray1, heightArray2, heightArray3, true);
+			UpdateMesh ();
+			timer = 0;
+		}
+
+
 	}
 
-	void GenerateVertices(float[][] heightArray1, float[][] heightArray2, float[][] heightArray3){
+	//get noise values from wholemapgenerator script -- something WEIRD happening when using these values. Everything fills up with noise
+	//looks like heightscale2 and freq2 causing that?
+	void GetNoiseValues(){
+		float[] noiseInput = WholeMapGenerator.noiseInput;
+
+//		for (int i = 0; i < noiseInput.Length; i++){
+//			Debug.Log (noiseInput [i]);
+//		}
+
+		heightScale1 = noiseInput[0];
+		frequency1 = noiseInput[1];
+
+		heightScale2 = noiseInput[2];
+		frequency2 = noiseInput[3];
+
+		heightScale3 = noiseInput[4];
+		frequency3 = noiseInput[5];
+	}
+
+	//check if variables  have changed
+	bool ChangeHappened(){
+		return true;
+	}
+
+	void GenerateVertices(float[][] heightArray1, float[][] heightArray2, float[][] heightArray3, bool update){
 		
 
 //		if (useRandomSeed){
@@ -134,6 +193,10 @@ public class ChunkGenerator : MonoBehaviour {
 		float freq2 = frequency2 / 2;
 		float freq3 = frequency3 / 100;
 
+//		float freq1 = frequency1;
+//		float freq2 = frequency2;
+//		float freq3 = frequency3;
+
 		heightArray1 = FillHeightArray (heightArray1, freq1);
 
 		heightArray2 = FillHeightArray (heightArray2, freq2);
@@ -142,6 +205,11 @@ public class ChunkGenerator : MonoBehaviour {
 
 
 		float y = 0f;
+		int i = 0;
+
+		if (update){
+			vertices.Clear ();
+		}
 
 		for (int z = 0; z < mapSize; z++){
 			for (int x = 0; x < mapSize; x++){
@@ -150,7 +218,7 @@ public class ChunkGenerator : MonoBehaviour {
 				// heightArray1 pienetkukkulat
 				// heightArray2 ihan pienet epätasaisuudet
 				// heightArray3 suuret muodot
-
+				y = 0f;
 				y = heightArray1 [x] [z] * heightScale1;
 
 
@@ -160,16 +228,57 @@ public class ChunkGenerator : MonoBehaviour {
 //				}
 				y += heightArray2 [x] [z] * heightScale2;
 
-				vertices.Add(new Vector3(x, y, z));
 
+				vertices.Add (new Vector3 (x, y, z));
+
+//				if (!update) {
+//					
+//					vertices.Add (new Vector3 (x, y, z));
+//
+//				} else {
+//					
+//					//unity crashes with this
+//					//mesh.vertices [i].y = y;
+//
+//
+//				}
+
+				i++;
 			}
 		}
 	}
 
+
+//	void UpdateHeightVertices(float[][] heightArray1, float[][] heightArray2, float[][] heightArray3){
+//		Vector3 newVertex = new Vector3 ();
+//		for (int i = 0; i < vertices.Count; i++){
+//			newVertex = vertices [i];
+//
+//			//määritä y (korkeus) kyseiselle vertexille
+//
+//			newVertex.y = 0; //placeholder
+//
+//			vertices [i] = newVertex;
+//		}
+//
+//		for (int i = 0; i < mesh.vertices.Length; i++){
+//
+//			newVertex = mesh.vertices [i];
+//
+//			//määritä y (korkeus) kyseiselle vertexille
+//
+//			newVertex.y = 0; 
+//
+//			mesh.vertices [i] = newVertex;
+//		}
+//
+//
+//	}
+
 	void GenerateMesh(){
 
-
-		Mesh mesh = new Mesh ();
+		//mesh = new Mesh ();
+		//Mesh mesh = new Mesh ();
 		filter.mesh = mesh;
 
 
@@ -181,6 +290,11 @@ public class ChunkGenerator : MonoBehaviour {
 	
 
 	}
+
+	void UpdateMesh(){
+		mesh.vertices = vertices.ToArray ();
+	}
+
 
 	void TriangulateSquare(){
 		//int y = 0;
@@ -212,10 +326,6 @@ public class ChunkGenerator : MonoBehaviour {
 		
 	}
 
-	void GenerateTriangle(){
-
-
-	}
 
 //	void OnDrawGizmos(){
 //
@@ -252,7 +362,7 @@ public class ChunkGenerator : MonoBehaviour {
 
 			for (int x = 0; x < mapSize; x++){
 				
-				Vector3 position = GetComponent<Transform>().position;
+				//Vector3 position = GetComponent<Transform>().position;
 
 //				float xn = position.x * x;
 //				float zn = position.z * z;
@@ -281,6 +391,8 @@ public class ChunkGenerator : MonoBehaviour {
 
 		return heightArray;
 	}
+
+
 		
 
 	int GetGridSize(){
@@ -345,9 +457,6 @@ public class ChunkGenerator : MonoBehaviour {
 			chunkX = idx;
 			chunkZ = idy;
 		}
-
-
-
 
 	}
 
@@ -481,24 +590,6 @@ public class ChunkGenerator : MonoBehaviour {
 
 		return highestPoint;
 	}
-
-//	void TestFunction(){
-//
-//		float test1 = 25.5f;
-//		float test2 = 25.6f;
-//		float test3 = 25.4f;
-//		float test4 = -1 / 50;
-//		float test5 = -0.555f;
-//
-//		int testi1 = (int)test1;
-//		int testi2 = (int)test2;
-//		int testi3 = (int)test3;
-//		int testi4 = (int)test4;
-//		int testi5 = (int)test5;
-//
-//		//Debug.Log ("25.5 = "+testi1+", 25.6 = "+testi2+", 25.4 = "+testi3+", -1/50 = "+test4+", -0.555 = "+testi5);
-//
-//	}
 
 
 	//lisaa vertexit dictiin, joista on helppo hakea x,z koordinaateilla korkein korkeus
